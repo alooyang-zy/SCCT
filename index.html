@@ -412,6 +412,131 @@
                 </div>
             </section>
 
+            <!-- ========== 页面: 库存管理 ========== -->
+            <section class="page" id="page-inventory">
+                <!-- 库存KPI卡片 -->
+                <div class="kpi-grid">
+                    <div class="kpi-card kpi-primary">
+                        <div class="kpi-icon"><i class="fas fa-boxes-stacked"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" data-target="12847">0</div>
+                            <div class="kpi-label">库存总量 (SKU)</div>
+                            <div class="kpi-trend up"><i class="fas fa-arrow-up"></i>+3.2%</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-success">
+                        <div class="kpi-icon"><i class="fas fa-coins"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" data-target="3820">0</div>
+                            <div class="kpi-label">库存总价值 (万元)</div>
+                            <div class="kpi-trend up"><i class="fas fa-arrow-up"></i>+5.1%</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-warning">
+                        <div class="kpi-icon"><i class="fas fa-rotate"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" data-target="12.8">0</div>
+                            <div class="kpi-label">库存周转天数</div>
+                            <div class="kpi-trend down"><i class="fas fa-arrow-down"></i>-1.5天</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-danger">
+                        <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" data-target="18">0</div>
+                            <div class="kpi-label">缺货/低库存项</div>
+                            <div class="kpi-trend down"><i class="fas fa-arrow-down"></i>-3</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 筛选栏 -->
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>物料编号:</label><input type="text" placeholder="输入物料编号">
+                    </div>
+                    <div class="filter-group">
+                        <label>物料名称:</label><input type="text" placeholder="输入物料名称">
+                    </div>
+                    <div class="filter-group">
+                        <label>类别:</label>
+                        <select><option value="">全部</option><option>原材料</option><option>半成品</option><option>成品</option><option>包材</option></select>
+                    </div>
+                    <div class="filter-group">
+                        <label>ABC分类:</label>
+                        <select><option value="">全部</option><option>A类</option><option>B类</option><option>C类</option></select>
+                    </div>
+                    <div class="filter-group">
+                        <label>库存状态:</label>
+                        <select><option value="">全部</option><option>正常</option><option>低于安全库存</option><option>呆滞</option></select>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-primary"><i class="fas fa-search"></i> 查询</button>
+                        <button class="btn btn-outline"><i class="fas fa-rotate-right"></i> 重置</button>
+                        <button class="btn btn-outline"><i class="fas fa-download"></i> 导出</button>
+                    </div>
+                </div>
+
+                <!-- 图表行 -->
+                <div class="chart-row">
+                    <div class="chart-card chart-lg">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-line"></i> 库存趋势（近30天）</h3>
+                            <div class="card-actions">
+                                <select class="mini-select"><option>近30天</option><option>近7天</option><option>近90天</option></select>
+                            </div>
+                        </div>
+                        <div class="card-body"><canvas id="inventoryHistoryChart"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-pie"></i> ABC分类占比</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="abcPieChart"></canvas>
+                            <div class="pie-legend" id="abcPieLegend"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-row">
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-layer-group"></i> 各类别库存分布</h3>
+                        </div>
+                        <div class="card-body"><canvas id="categoryStockChart"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-box-open"></i> 库存周转vs呆滞分析</h3>
+                        </div>
+                        <div class="card-body"><canvas id="turnoverChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- 低库存预警表格 -->
+                <div class="chart-row" style="grid-template-columns: 1fr;">
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-exclamation-circle"></i> 低库存/呆滞预警清单</h3>
+                            <span class="badge" style="background:var(--danger);padding:2px 10px;border-radius:10px;font-size:11px;">18 项需关注</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>物料编号</th><th>物料名称</th><th>类别</th><th>ABC</th>
+                                        <th>当前库存</th><th>安全库存</th><th>库存状态</th>
+                                        <th>最近出库</th><th>呆滞天数</th><th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryAlertBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- ========== 页面: AI助手 ========== -->
             <section class="page" id="page-ai-assistant">
                 <div class="ai-chat-container">

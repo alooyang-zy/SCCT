@@ -445,3 +445,16 @@ body.fullscreen-mode .flow-diagram { min-height: calc(100vh - 220px); }
 .pie-legend-item span:first-child {
     width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex-shrink: 0;
 }
+
+/* ========== Inventory Page ========== */
+.inv-status { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.inv-status.normal { background: #d4edda; color: #155724; }
+.inv-status.low { background: #fff3cd; color: #856404; }
+.inv-status.critical { background: #f8d7da; color: #721c24; }
+.inv-status.stagnant { background: #e2e3f1; color: #3a3f77; }
+
+.inv-action-btn { padding: 3px 10px; border-radius: 4px; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 11px; color: #555; transition: all 0.2s; }
+.inv-action-btn:hover { border-color: var(--primary); color: var(--primary); background: #f0f4ff; }
+.inv-action-btn.danger:hover { border-color: var(--danger); color: var(--danger); background: #fff5f5; }
+
+.mini-select { border: 1px solid #ddd; border-radius: 4px; padding: 4px 8px; font-size: 12px; outline: none; color: #555; }

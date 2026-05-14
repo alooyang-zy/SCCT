@@ -207,3 +207,59 @@ const analyticsData = {
     costLabels: ['原材料', '制造成本', '物流费用', '仓储成本', '管理费用', '其他'],
     costValues: [42, 28, 12, 9, 6, 3],
 };
+
+// ========== 库存管理数据 ==========
+const inventoryData = {
+    // ABC分类
+    abc: {
+        labels: ['A类(高价值)', 'B类(中价值)', 'C类(低价值)'],
+        values: [15, 35, 50],
+        colors: ['#dc3545', '#f0b429', '#28a745'],
+        desc: ['占总价值70%，占SKU 15%', '占总价值25%，占SKU 35%', '占总价值5%，占SKU 50%'],
+    },
+    // 各类别库存分布
+    category: {
+        labels: ['电子元器件', '结构件', '包材辅料', '化工原料', '五金件', '成品', '半成品'],
+        values: [3200, 2400, 1800, 1500, 1200, 2800, 947],
+        colors: ['#2a5298','#28a745','#17a2b8','#e6a23e','#f56c6c','#667eea','#764ba2'],
+    },
+    // 库存历史趋势
+    history: {
+        labels: Array.from({length:30}, (_,i) => {
+            const d = new Date('2025-04-15');
+            d.setDate(d.getDate()+i);
+            return `${d.getMonth()+1}/${d.getDate()}`;
+        }),
+        rawMaterial: Array.from({length:30}, (_,i) => 6200 + Math.sin(i/5)*400 + (Math.random()-0.4)*300),
+        semiProduct: Array.from({length:30}, (_,i) => 1800 + Math.sin(i/4+1)*200 + (Math.random()-0.5)*150),
+        finishedGoods: Array.from({length:30}, (_,i) => 4400 + Math.sin(i/3+2)*300 + (Math.random()-0.3)*250),
+    },
+    // 周转分析
+    turnover: {
+        labels: ['电子元器件', '结构件', '包材辅料', '化工原料', '五金件', '成品', '半成品'],
+        turnoverDays: [8, 15, 22, 18, 25, 6, 12],  // 周转天数
+        stagnantDays: [45, 30, 60, 25, 35, 10, 20], // 呆滞天数
+    },
+};
+
+// 低库存/呆滞预警清单
+const inventoryAlerts = [
+    { code:'IC-2024-X', name:'主控芯片', cat:'电子元器件', abc:'A', stock:120, safety:5000, status:'critical', lastOut:'2025-05-10', stagnant:0 },
+    { code:'CAP-C003', name:'高压电容组', cat:'电子元器件', abc:'A', stock:350, safety:1000, status:'low', lastOut:'2025-05-08', stagnant:0 },
+    { code:'PCB-I009', name:'高速信号板', cat:'电子元器件', abc:'B', stock:80, safety:300, status:'critical', lastOut:'2025-05-12', stagnant:0 },
+    { code:'RES-D004', name:'精密电阻排', cat:'电子元器件', abc:'B', stock:500, safety:800, status:'low', lastOut:'2025-05-06', stagnant:0 },
+    { code:'MEM-E005', name:'存储芯片', cat:'电子元器件', abc:'A', stock:200, safety:600, status:'critical', lastOut:'2025-05-11', stagnant:0 },
+    { code:'CASE-J010', name:'铝合金外壳', cat:'结构件', abc:'B', stock:180, safety:400, status:'low', lastOut:'2025-04-28', stagnant:0 },
+    { code:'CONN-F006', name:'高密连接器', cat:'电子元器件', abc:'C', stock:2500, safety:500, status:'normal', lastOut:'2025-03-15', stagnant:60 },
+    { code:'DIS-G007', name:'显示屏模组', cat:'成品', abc:'A', stock:65, safety:200, status:'critical', lastOut:'2025-05-13', stagnant:0 },
+    { code:'LED-H008', name:'LED驱动器', cat:'电子元器件', abc:'C', stock:1800, safety:400, status:'normal', lastOut:'2025-02-20', stagnant:85 },
+    { code:'PKG-K001', name:'防静电包装袋', cat:'包材辅料', abc:'C', stock:30000, safety:5000, status:'normal', lastOut:'2025-03-01', stagnant:72 },
+    { code:'CHE-L002', name:'散热硅脂', cat:'化工原料', abc:'C', stock:800, safety:300, status:'normal', lastOut:'2025-04-15', stagnant:30 },
+    { code:'WIR-M003', name:'高温导线', cat:'电子元器件', abc:'C', stock:150, safety:500, status:'critical', lastOut:'2025-05-09', stagnant:0 },
+    { code:'BOL-N004', name:'不锈钢螺栓组', cat:'五金件', abc:'C', stock:15000, safety:2000, status:'normal', lastOut:'2025-03-20', stagnant:55 },
+    { code:'SPR-O005', name:'精密弹簧', cat:'五金件', abc:'B', stock:200, safety:450, status:'low', lastOut:'2025-05-07', stagnant:0 },
+    { code:'FIL-P006', name:'EMI滤波片', cat:'电子元器件', abc:'B', stock:320, safety:600, status:'low', lastOut:'2025-05-05', stagnant:0 },
+    { code:'GLU-Q007', name:'工业胶水', cat:'化工原料', abc:'C', stock:95, safety:400, status:'critical', lastOut:'2025-05-14', stagnant:0 },
+    { code:'MAT-R008', name:'导热垫片', cat:'化工原料', abc:'C', stock:500, safety:300, status:'normal', lastOut:'2025-04-01', stagnant:42 },
+    { code:'BOX-S009', name:'成品包装箱', cat:'包材辅料', abc:'C', stock:4500, safety:1000, status:'normal', lastOut:'2025-05-13', stagnant:0 },
+];

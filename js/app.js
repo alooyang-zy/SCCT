@@ -63,6 +63,7 @@ function switchPage(pageId) {
 
     // 页面切换时初始化对应图表
     if (pageId === 'analytics') initAnalyticsCharts();
+    if (pageId === 'inventory') initInventoryCharts();
     if (pageId === 'flow') drawFlowLines();
 }
 
@@ -341,6 +342,175 @@ function initAnalyticsCharts() {
             },
         });
     }
+}
+
+// ========== 库存管理图表 ==========
+function initInventoryCharts() {
+    // 库存历史趋势图
+    const histCtx = document.getElementById('inventoryHistoryChart');
+    if (histCtx && !App.charts.inventoryHistory) {
+        App.charts.inventoryHistory = new Chart(histCtx, {
+            type: 'line',
+            data: {
+                labels: inventoryData.history.labels,
+                datasets: [
+                    {
+                        label: '原材料库存',
+                        data: inventoryData.history.rawMaterial,
+                        borderColor: '#2a5298',
+                        backgroundColor: 'rgba(42,82,152,0.06)',
+                        fill: true, tension: 0.4, pointRadius: 0, pointHoverRadius: 4,
+                    },
+                    {
+                        label: '半成品库存',
+                        data: inventoryData.history.semiProduct,
+                        borderColor: '#e6a23e',
+                        backgroundColor: 'rgba(230,162,62,0.06)',
+                        fill: true, tension: 0.4, pointRadius: 0, pointHoverRadius: 4,
+                    },
+                    {
+                        label: '成品库存',
+                        data: inventoryData.history.finishedGoods,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40,167,69,0.06)',
+                        fill: true, tension: 0.4, pointRadius: 0, pointHoverRadius: 4,
+                    },
+                ],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, padding: 15, font: { size: 11 } } },
+                },
+                scales: {
+                    y: { title: { display: true, text: '库存量 (SKU)', font: { size: 11 } }, grid: { color: '#f0f0f0' } },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 10 } } },
+                },
+            },
+        });
+    }
+
+    // ABC分类饼图
+    const abcCtx = document.getElementById('abcPieChart');
+    if (abcCtx && !App.charts.abcPie) {
+        App.charts.abcPie = new Chart(abcCtx, {
+            type: 'doughnut',
+            data: {
+                labels: inventoryData.abc.labels,
+                datasets: [{
+                    data: inventoryData.abc.values,
+                    backgroundColor: inventoryData.abc.colors,
+                    borderWidth: 0, hoverOffset: 8,
+                }],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '60%',
+                plugins: { legend: { display: false } },
+            },
+        });
+        const legendEl = document.getElementById('abcPieLegend');
+        if (legendEl) {
+            legendEl.innerHTML = inventoryData.abc.labels.map((l, i) =>
+                `<div class="pie-legend-item"><span style="background:${inventoryData.abc.colors[i]}"></span>${l}: ${inventoryData.abc.values[i]}% <small style="color:#999">(${inventoryData.abc.desc[i]})</small></div>`
+            ).join('');
+        }
+    }
+
+    // 各类别库存分布柱状图
+    const catCtx = document.getElementById('categoryStockChart');
+    if (catCtx && !App.charts.categoryStock) {
+        App.charts.categoryStock = new Chart(catCtx, {
+            type: 'bar',
+            data: {
+                labels: inventoryData.category.labels,
+                datasets: [{
+                    label: '库存量 (SKU)',
+                    data: inventoryData.category.values,
+                    backgroundColor: inventoryData.category.colors,
+                    borderRadius: 4,
+                }],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { title: { display: true, text: 'SKU', font: { size: 11 } }, grid: { color: '#f0f0f0' }, beginAtZero: true },
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                },
+            },
+        });
+    }
+
+    // 周转vs呆滞分析
+    const turnCtx = document.getElementById('turnoverChart');
+    if (turnCtx && !App.charts.turnover) {
+        App.charts.turnover = new Chart(turnCtx, {
+            type: 'bar',
+            data: {
+                labels: inventoryData.turnover.labels,
+                datasets: [
+                    {
+                        label: '周转天数',
+                        data: inventoryData.turnover.turnoverDays,
+                        backgroundColor: 'rgba(40,167,69,0.7)',
+                        borderRadius: 4, yAxisID: 'y',
+                    },
+                    {
+                        label: '呆滞天数',
+                        data: inventoryData.turnover.stagnantDays,
+                        backgroundColor: 'rgba(220,53,69,0.7)',
+                        borderRadius: 4, yAxisID: 'y',
+                    },
+                ],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true, font: { size: 11 } } } },
+                scales: {
+                    y: { title: { display: true, text: '天数', font: { size: 11 } }, grid: { color: '#f0f0f0' }, beginAtZero: true },
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                },
+            },
+        });
+    }
+
+    // 渲染预警表格
+    renderInventoryAlertTable();
+}
+
+function renderInventoryAlertTable() {
+    const tbody = document.getElementById('inventoryAlertBody');
+    if (!tbody) return;
+    tbody.innerHTML = inventoryAlerts.map(item => {
+        const statusMap = {
+            critical: '<span class="inv-status critical">严重缺货</span>',
+            low: '<span class="inv-status low">低于安全库存</span>',
+            normal: '<span class="inv-status normal">正常</span>',
+        };
+        const stagnantText = item.stagnant > 0 ? `${item.stagnant}天` : '-';
+        const stagnantClass = item.stagnant > 60 ? 'inv-status stagnant' : item.stagnant > 30 ? 'inv-status low' : '';
+        const actionBtn = item.status === 'critical'
+            ? '<button class="inv-action-btn danger" onclick="showToast(\'已发起紧急补货申请\',\'success\')">紧急补货</button>'
+            : item.status === 'low'
+            ? '<button class="inv-action-btn" onclick="showToast(\'已生成采购建议\',\'success\')">采购建议</button>'
+            : item.stagnant > 60
+            ? '<button class="inv-action-btn danger" onclick="showToast(\'已发起呆滞处置流程\',\'success\')">呆滞处置</button>'
+            : '<button class="inv-action-btn" onclick="showToast(\'已打开物料详情\',\'info\')">详情</button>';
+        return `
+            <tr>
+                <td><strong>${item.code}</strong></td>
+                <td>${item.name}</td>
+                <td>${item.cat}</td>
+                <td><span class="badge" style="background:${item.abc==='A'?'var(--danger)':item.abc==='B'?'#e6a23e':'var(--success)'};padding:2px 8px;border-radius:4px;font-size:11px;">${item.abc}类</span></td>
+                <td style="font-weight:600;color:${item.stock < item.safety ? 'var(--danger)' : 'var(--success)'}">${item.stock.toLocaleString()}</td>
+                <td>${item.safety.toLocaleString()}</td>
+                <td>${statusMap[item.status]}</td>
+                <td>${item.lastOut}</td>
+                <td><span class="${stagnantClass}" style="font-weight:600;">${stagnantText}</span></td>
+                <td>${actionBtn}</td>
+            </tr>`;
+    }).join('');
 }
 
 // ========== 流程图交互 ==========
