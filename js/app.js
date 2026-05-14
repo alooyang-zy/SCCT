@@ -1,6 +1,6 @@
 /**
- * 供应链控制塔 - 主应用逻辑
- * Supply Chain Control Tower - Main Application
+ * 歌尔供应链控制塔 - 主应用逻辑
+ * Goertek Supply Chain Control Tower - Main Application
  */
 
 // ========== 全局状态 ==========
@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFlowDiagram();
     initTracking();
     initChatInput();
+    initSettingsNav();
     renderAlertTable();
 });
 
@@ -64,7 +65,20 @@ function switchPage(pageId) {
     // 页面切换时初始化对应图表
     if (pageId === 'analytics') initAnalyticsCharts();
     if (pageId === 'inventory') initInventoryCharts();
+    if (pageId === 'logistics') initLogisticsCharts();
+    if (pageId === 'settings') initSettingsData();
     if (pageId === 'flow') drawFlowLines();
+
+    // 页面显示后延迟resize，确保布局完成后再计算画布尺寸
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            Object.keys(App.charts).forEach(key => {
+                if (App.charts[key] && typeof App.charts[key].resize === 'function') {
+                    App.charts[key].resize();
+                }
+            });
+        });
+    });
 }
 
 // ========== 侧边栏折叠 ==========
@@ -133,6 +147,7 @@ function animateKpiValues() {
 
 // ========== 图表初始化 ==========
 function initCharts() {
+    if (typeof Chart === 'undefined') { console.warn('Chart.js 未加载，图表将不显示'); return; }
     // 库存趋势图
     const trendData = generateInventoryTrendData();
     const invCtx = document.getElementById('inventoryTrendChart');
@@ -154,7 +169,7 @@ function initCharts() {
                         yAxisID: 'y',
                     },
                     {
-                        label: '物流准时率 (%)',
+                        label: '准时交付率 (%)',
                         data: trendData.logistics,
                         borderColor: '#28a745',
                         backgroundColor: 'transparent',
@@ -169,7 +184,6 @@ function initCharts() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                height: 280,
                 interaction: { intersect: false, mode: 'index' },
                 plugins: {
                     legend: { position: 'top', labels: { usePointStyle: true, padding: 15, font: { size: 11 } } },
@@ -249,6 +263,7 @@ function initCharts() {
 
 // ========== 分析页图表 ==========
 function initAnalyticsCharts() {
+    if (typeof Chart === 'undefined') return;
     // 趋势预测图
     const tfCtx = document.getElementById('trendForecastChart');
     if (tfCtx && !App.charts.trendForecast) {
@@ -324,7 +339,7 @@ function initAnalyticsCharts() {
         App.charts.stagnant = new Chart(stagCtx, {
             type: 'bar',
             data: {
-                labels: ['IC-A001','IC-B002','CAP-C003','RES-D004','MEM-E005','CONN-F006','DIS-G007','LED-H008','PCB-I009','CASE-J010'],
+                labels: ['IC-BES2300','MEM-KNOW01','OLED-MICRO','LED-WHITE','PKG-ESD','BOL-N004','CHE-THERMAL','MAT-R008','PCB-HDI009','CAS-AL6063'],
                 datasets: [{
                     label: '滞留天数',
                     data: [120, 98, 85, 72, 65, 58, 52, 48, 44, 40],
@@ -342,10 +357,39 @@ function initAnalyticsCharts() {
             },
         });
     }
+
+    // BG事业群绩效对比图
+    const bgCtx = document.getElementById('bgPerformanceChart');
+    if (bgCtx && !App.charts.bgPerf) {
+        App.charts.bgPerf = new Chart(bgCtx, {
+            type: 'bar',
+            data: {
+                labels: bgPerformanceData.labels,
+                datasets: bgPerformanceData.datasets.map(ds => ({
+                    label: ds.label,
+                    data: ds.data,
+                    backgroundColor: ds.color + 'B3',
+                    borderRadius: 4,
+                })),
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true, font: { size: 11 } } } },
+                scales: {
+                    y: { beginAtZero: false, min: 60, grid: { color: '#f0f0f0' } },
+                    x: { grid: { display: false } },
+                },
+            },
+        });
+    }
+
+    // 客户交付绩效表
+    renderCustomerPerfTable();
 }
 
 // ========== 库存管理图表 ==========
 function initInventoryCharts() {
+    if (typeof Chart === 'undefined') return;
     // 库存历史趋势图
     const histCtx = document.getElementById('inventoryHistoryChart');
     if (histCtx && !App.charts.inventoryHistory) {
@@ -355,21 +399,21 @@ function initInventoryCharts() {
                 labels: inventoryData.history.labels,
                 datasets: [
                     {
-                        label: '原材料库存',
+                        label: '原材料(芯片/声学)',
                         data: inventoryData.history.rawMaterial,
                         borderColor: '#2a5298',
                         backgroundColor: 'rgba(42,82,152,0.06)',
                         fill: true, tension: 0.4, pointRadius: 0, pointHoverRadius: 4,
                     },
                     {
-                        label: '半成品库存',
+                        label: '半成品(WIP)',
                         data: inventoryData.history.semiProduct,
                         borderColor: '#e6a23e',
                         backgroundColor: 'rgba(230,162,62,0.06)',
                         fill: true, tension: 0.4, pointRadius: 0, pointHoverRadius: 4,
                     },
                     {
-                        label: '成品库存',
+                        label: '成品',
                         data: inventoryData.history.finishedGoods,
                         borderColor: '#28a745',
                         backgroundColor: 'rgba(40,167,69,0.06)',
@@ -513,6 +557,240 @@ function renderInventoryAlertTable() {
     }).join('');
 }
 
+// ========== 物流中心图表 ==========
+function initLogisticsCharts() {
+    if (typeof Chart === 'undefined') return;
+    // 发运趋势
+    const shipCtx = document.getElementById('shipmentTrendChart');
+    if (shipCtx && !App.charts.shipmentTrend) {
+        App.charts.shipmentTrend = new Chart(shipCtx, {
+            type: 'line',
+            data: {
+                labels: logisticsData.shipment.labels,
+                datasets: [
+                    {
+                        label: '国内发运 (票)',
+                        data: logisticsData.shipment.domestic,
+                        borderColor: '#2a5298',
+                        backgroundColor: 'rgba(42,82,152,0.06)',
+                        fill: true, tension: 0.4, pointRadius: 0,
+                    },
+                    {
+                        label: '海外发运 (票)',
+                        data: logisticsData.shipment.overseas,
+                        borderColor: '#e6a23e',
+                        backgroundColor: 'rgba(230,162,62,0.06)',
+                        fill: true, tension: 0.4, pointRadius: 0,
+                    },
+                ],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 15, font: { size: 11 } } } },
+                scales: {
+                    y: { title: { display: true, text: '发运票数', font: { size: 11 } }, grid: { color: '#f0f0f0' }, beginAtZero: true },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 10 } } },
+                },
+            },
+        });
+    }
+
+    // 运输方式饼图
+    const tmCtx = document.getElementById('transportModeChart');
+    if (tmCtx && !App.charts.transportMode) {
+        App.charts.transportMode = new Chart(tmCtx, {
+            type: 'doughnut',
+            data: {
+                labels: logisticsData.transportMode.labels,
+                datasets: [{
+                    data: logisticsData.transportMode.values,
+                    backgroundColor: logisticsData.transportMode.colors,
+                    borderWidth: 0, hoverOffset: 8,
+                }],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '60%',
+                plugins: { legend: { display: false } },
+            },
+        });
+        const legendEl = document.getElementById('transportModeLegend');
+        if (legendEl) {
+            legendEl.innerHTML = logisticsData.transportMode.labels.map((l, i) =>
+                `<div class="pie-legend-item"><span style="background:${logisticsData.transportMode.colors[i]}"></span>${l}: ${logisticsData.transportMode.values[i]}%</div>`
+            ).join('');
+        }
+    }
+
+    // 承运商绩效
+    const carrierCtx = document.getElementById('carrierPerfChart');
+    if (carrierCtx && !App.charts.carrierPerf) {
+        App.charts.carrierPerf = new Chart(carrierCtx, {
+            type: 'bar',
+            data: {
+                labels: logisticsData.carriers.labels,
+                datasets: [
+                    {
+                        label: '准时率 (%)',
+                        data: logisticsData.carriers.onTimeRate,
+                        backgroundColor: 'rgba(40,167,69,0.7)',
+                        borderRadius: 4, yAxisID: 'y',
+                    },
+                    {
+                        label: '成本指数',
+                        data: logisticsData.carriers.costIndex,
+                        backgroundColor: 'rgba(230,162,62,0.7)',
+                        borderRadius: 4, yAxisID: 'y1',
+                    },
+                ],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true, font: { size: 11 } } } },
+                scales: {
+                    y: { position: 'left', title: { display: true, text: '准时率%', font: { size: 11 } }, min: 70, max: 100, grid: { color: '#f0f0f0' } },
+                    y1: { position: 'right', title: { display: true, text: '成本指数', font: { size: 11 } }, grid: { display: false } },
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                },
+            },
+        });
+    }
+
+    // 目的地分布
+    const destCtx = document.getElementById('destinationChart');
+    if (destCtx && !App.charts.destination) {
+        App.charts.destination = new Chart(destCtx, {
+            type: 'bar',
+            data: {
+                labels: logisticsData.destinations.labels,
+                datasets: [{
+                    label: '发运占比 (%)',
+                    data: logisticsData.destinations.values,
+                    backgroundColor: logisticsData.destinations.colors,
+                    borderRadius: 4,
+                }],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { title: { display: true, text: '%', font: { size: 11 } }, grid: { color: '#f0f0f0' }, beginAtZero: true },
+                    x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                },
+            },
+        });
+    }
+
+    // 在途订单表格
+    renderLogisticsTrackTable();
+}
+
+function renderLogisticsTrackTable() {
+    const tbody = document.getElementById('logisticsTrackBody');
+    if (!tbody) return;
+    const statusMap = {
+        '在途': '<span class="inv-status" style="background:#cce5ff;color:#004085;">在途</span>',
+        '延误': '<span class="inv-status critical">延误</span>',
+        '已签收': '<span class="inv-status normal">已签收</span>',
+    };
+    const modeMap = {
+        '空运': '<i class="fas fa-plane" style="color:#2a5298;margin-right:4px;"></i>空运',
+        '海运': '<i class="fas fa-ship" style="color:#17a2b8;margin-right:4px;"></i>海运',
+        '陆运': '<i class="fas fa-truck" style="color:#28a745;margin-right:4px;"></i>陆运',
+        '铁运': '<i class="fas fa-train" style="color:#e6a23e;margin-right:4px;"></i>铁运',
+    };
+    tbody.innerHTML = logisticsTracking.map(item => `
+        <tr>
+            <td><strong>${item.id}</strong></td>
+            <td>${item.customer}</td>
+            <td>${item.product}</td>
+            <td>${item.dest}</td>
+            <td>${item.carrier}</td>
+            <td>${modeMap[item.mode] || item.mode}</td>
+            <td>${item.shipDate}</td>
+            <td>${item.eta}</td>
+            <td>${statusMap[item.status] || item.status}</td>
+        </tr>`).join('');
+}
+
+// ========== 系统设置 ==========
+function initSettingsNav() {
+    document.querySelectorAll('.settings-nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            document.querySelectorAll('.settings-nav-item').forEach(n => n.classList.remove('active'));
+            item.classList.add('active');
+            document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+            const panel = document.getElementById(`setting-${item.dataset.setting}`);
+            if (panel) panel.classList.add('active');
+        });
+    });
+}
+
+function initSettingsData() {
+    // 用户管理表格
+    const userBody = document.getElementById('userMgmtBody');
+    if (userBody && userBody.children.length === 0) {
+        userBody.innerHTML = userMgmtData.map(u => `
+            <tr>
+                <td><strong>${u.username}</strong></td>
+                <td>${u.name}</td>
+                <td><span class="badge" style="background:${u.role==='超级管理员'?'var(--danger)':u.role==='系统账户'?'#764ba2':'var(--primary)'};padding:2px 8px;border-radius:4px;font-size:11px;">${u.role}</span></td>
+                <td>${u.dept}</td>
+                <td><span class="inv-status ${u.status==='活跃'?'normal':'low'}">${u.status}</span></td>
+                <td>${u.lastLogin}</td>
+                <td><button class="inv-action-btn" onclick="showToast('用户 ${u.name} 信息已更新','success')">编辑</button></td>
+            </tr>`).join('');
+    }
+
+    // 数据源集成
+    const intGrid = document.getElementById('integrationGrid');
+    if (intGrid && intGrid.children.length === 0) {
+        intGrid.innerHTML = integrationData.map(item => `
+            <div class="integration-card">
+                <div class="int-icon"><i class="fas ${item.icon}"></i></div>
+                <div class="int-info">
+                    <div class="int-name">${item.name}</div>
+                    <div class="int-desc">${item.desc}</div>
+                    <div class="int-meta">
+                        <span class="int-status" style="color:${item.color}"><i class="fas fa-circle" style="font-size:8px;"></i> ${item.status}</span>
+                        <span class="int-sync">最近同步: ${item.lastSync}</span>
+                    </div>
+                </div>
+                <button class="inv-action-btn" onclick="showToast('${item.name} 连接测试成功','success')">测试</button>
+            </div>`).join('');
+    }
+
+    // 预警规则
+    const ruleList = document.getElementById('warningRuleList');
+    if (ruleList && ruleList.children.length === 0) {
+        ruleList.innerHTML = warningRules.map((rule, i) => `
+            <div class="rule-item">
+                <div class="rule-info">
+                    <div class="rule-name">${rule.name}</div>
+                    <div class="rule-desc">类型: ${rule.type} | 条件: ${rule.condition}</div>
+                </div>
+                <div class="rule-meta">
+                    <span class="badge" style="background:${rule.level==='严重'?'var(--danger)':rule.level==='警告'?'#e6a23e':'var(--info)'};padding:2px 8px;border-radius:4px;font-size:11px;">${rule.level}</span>
+                    <label class="switch"><input type="checkbox" ${rule.enabled?'checked':''} onchange="showToast('规则已${rule.enabled?'禁用':'启用'}','info')"><span class="slider"></span></label>
+                </div>
+            </div>`).join('');
+    }
+
+    // 系统日志
+    const logBody = document.getElementById('systemLogBody');
+    if (logBody && logBody.children.length === 0) {
+        const levelColors = { INFO: 'var(--info)', WARN: '#e6a23e', ERROR: 'var(--danger)' };
+        logBody.innerHTML = systemLogs.map(log => `
+            <tr>
+                <td style="font-family:Consolas,monospace;font-size:12px;">${log.time}</td>
+                <td><span class="badge" style="background:${levelColors[log.level]};padding:2px 8px;border-radius:4px;font-size:11px;">${log.level}</span></td>
+                <td>${log.module}</td>
+                <td>${log.user}</td>
+                <td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${log.content}">${log.content}</td>
+            </tr>`).join('');
+    }
+}
+
 // ========== 流程图交互 ==========
 function initFlowDiagram() {
     document.querySelectorAll('.process-node, .side-module, .cat-process').forEach(node => {
@@ -570,11 +848,11 @@ function showNodeDetail(nodeKey) {
 
 function generateAiSuggestion(data) {
     if (data.status === '预警') {
-        return `检测到该环节存在效率瓶颈，建议：<br>1. 排查近期异常订单，识别共性原因<br>2. 考虑增加并行处理资源<br>3. 与相关方确认SLA是否需要调整`;
+        return `检测到该环节存在效率瓶颈，建议：<br>1. 排查近期异常订单，识别共性原因<br>2. 考虑增加SMT并行产线或延长班次<br>3. 与客户确认是否需要调整ATP承诺交期`;
     } else if (data.status === '警告') {
-        return `该指标接近警戒阈值，建议关注近期趋势变化，必要时提前介入协调资源。`;
+        return `该指标接近警戒阈值，建议关注近期趋势变化。如涉及产能/物料问题，可提前启动跨BG资源协调。`;
     } else if (data.highlight) {
-        return `此为核心枢纽节点，其输出直接影响下游多个环节。建议保持较高监控频率，确保信息及时同步。`;
+        return `此为核心枢纽节点，其输出直接影响下游多个环节。建议保持较高监控频率，确保S&OP信息及时同步至各BG。`;
     }
     return `该节点运行状态良好，建议继续保持当前的流程规范和监控机制。`;
 }
@@ -601,7 +879,7 @@ function renderAlertTable() {
                 <td><span class="badge" style="background:var(--${levelColors[e.level]});padding:2px 8px;border-radius:4px;">${levelLabels[e.level]}</span></td>
                 <td>${e.type}</td>
                 <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${e.desc}">${e.desc}</td>
-                <td><span style="color:${['已完成'].includes(e.status) ? 'var(--success)' : 'var(--warning)'};font-weight:600;">${e.status}</span></td>
+                <td><span style="color:${['已完成','已退供'].includes(e.status) ? 'var(--success)' : 'var(--warning)'};font-weight:600;">${e.status}</span></td>
             </tr>`;
     }).join('');
 }
@@ -748,19 +1026,22 @@ function getAiReply(msg) {
     const lowerMsg = msg.toLowerCase();
     if (lowerMsg.includes('预警') || lowerMsg.includes('告警')) return aiResponses['预警'];
     if (lowerMsg.includes('周转')) return aiResponses['周转率'];
-    if (lowerMsg.includes('物流') || lowerMsg.includes('追踪')) return aiResponses['物流'];
+    if (lowerMsg.includes('物流') || lowerMsg.includes('追踪') || lowerMsg.includes('airpods')) return aiResponses['物流'];
     if (lowerMsg.includes('周报') || lowerMsg.includes('报告') || lowerMsg.includes('摘要')) return aiResponses['周报'];
+    if (lowerMsg.includes('协同') || lowerMsg.includes('oc') || lowerMsg.includes('pc') || lowerMsg.includes('协调')) return aiResponses['协同'];
+    if (lowerMsg.includes('齐套') || lowerMsg.includes('mc') || lowerMsg.includes('物料')) return aiResponses['齐套'];
+    if (lowerMsg.includes('buyer') || lowerMsg.includes('采购') || lowerMsg.includes('跟进')) return aiResponses['物流'];
 
     // 默认回复
     return `感谢您的提问！关于 **"${msg}"** ，我来为您分析：
 
-根据当前供应链数据，我已检索到相关信息。以下是关键洞察：
+根据当前歌尔供应链数据，我已检索到相关信息。以下是关键洞察：
 
 ✅ **数据摘要**: 已关联到 **${Math.floor(Math.random()*50+10)}** 条相关记录  
 ⚡ **响应时效**: 数据更新于 **${new Date().toLocaleTimeString()}**  
-🔗 **关联影响**: 可能涉及 **${['采购','生产','物流','库存'][Math.floor(Math.random()*4)]}** 环节
+🔗 **关联影响**: 可能涉及 **${['声学器件','VR/AR模组','芯片采购','SMT产能'][Math.floor(Math.random()*4)]}** 环节
 
-如需更详细的分析或生成专项报告，请告诉我您关注的维度（如时间范围、产品线、客户等），我将为您提供定制化的分析结果。`;
+如需更详细的分析或生成专项报告，请告诉我您关注的维度（如产品线、客户、BG等），我将为您提供定制化的分析结果。`;
 }
 
 function showTypingIndicator() {
@@ -806,3 +1087,23 @@ function toggleFullscreen() {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeModal();
 });
+
+// ========== 客户交付绩效表 ==========
+function renderCustomerPerfTable() {
+    const tbody = document.getElementById('customerPerfBody');
+    if (!tbody || tbody.children.length > 0) return;
+    const ratingColors = { 'A+': '#28a745', 'A': '#2a5298', 'B+': '#e6a23e', 'B': '#dc3545' };
+    tbody.innerHTML = customerPerfData.map(c => {
+        const otdColor = c.otd >= 95 ? 'var(--success)' : c.otd >= 90 ? 'var(--primary-light)' : '#e6a23e';
+        return `
+        <tr>
+            <td><strong>${c.customer}</strong></td>
+            <td>${c.product}</td>
+            <td style="color:${otdColor};font-weight:600;">${c.otd}%</td>
+            <td style="font-weight:600;">${c.perfectOrder}%</td>
+            <td>${c.ofct}</td>
+            <td style="color:${c.returnRate > 1 ? 'var(--danger)' : 'var(--success)'}">${c.returnRate}%</td>
+            <td><span style="display:inline-block;padding:2px 12px;border-radius:4px;font-size:12px;font-weight:700;color:#fff;background:${ratingColors[c.rating]}">${c.rating}</span></td>
+        </tr>`;
+    }).join('');
+}

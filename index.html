@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>供应链控制塔 - Supply Chain Control Tower</title>
+    <title>歌尔供应链控制塔 - Goertek SCCT</title>
     <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome 异步加载，避免CDN阻塞页面渲染 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.onload=null;this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 </head>
 <body>
     <!-- 侧边导航 -->
@@ -13,7 +15,7 @@
         <div class="sidebar-header">
             <div class="logo">
                 <i class="fas fa-cubes"></i>
-                <span>供应链控制塔</span>
+                <span>歌尔供应链控制塔</span>
             </div>
             <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
         </div>
@@ -86,8 +88,8 @@
 
             <!-- ========== 页面: 全局概览 (Dashboard) ========== -->
             <section class="page active" id="page-overview">
-                <!-- KPI 卡片 -->
-                <div class="kpi-grid">
+                <!-- SCOR Level 1 战略层 KPI 卡片 -->
+                <div class="kpi-grid kpi-grid-primary">
                     <div class="kpi-card kpi-primary">
                         <div class="kpi-icon"><i class="fas fa-boxes-stacked"></i></div>
                         <div class="kpi-content">
@@ -97,19 +99,19 @@
                         </div>
                     </div>
                     <div class="kpi-card kpi-success">
-                        <div class="kpi-icon"><i class="fas fa-truck-fast"></i></div>
+                        <div class="kpi-icon"><i class="fas fa-trophy"></i></div>
                         <div class="kpi-content">
-                            <div class="kpi-value" data-target="96.8">0</div>
-                            <div class="kpi-label">订单履约率 (%)</div>
-                            <div class="kpi-trend up"><i class="fas fa-arrow-up"></i>+1.5%</div>
+                            <div class="kpi-value" data-target="93.2">0</div>
+                            <div class="kpi-label">完美订单率 (%)</div>
+                            <div class="kpi-trend up"><i class="fas fa-arrow-up"></i>+1.8%</div>
                         </div>
                     </div>
                     <div class="kpi-card kpi-warning">
                         <div class="kpi-icon"><i class="fas fa-clock"></i></div>
                         <div class="kpi-content">
-                            <div class="kpi-value" data-target="12">0</div>
-                            <div class="kpi-label">待处理异常</div>
-                            <div class="kpi-trend down"><i class="fas fa-arrow-down"></i>-2</div>
+                            <div class="kpi-value" data-target="18">0</div>
+                            <div class="kpi-label">订单履约周期OFCT (天)</div>
+                            <div class="kpi-trend down"><i class="fas fa-arrow-down"></i>-2天</div>
                         </div>
                     </div>
                     <div class="kpi-card kpi-danger">
@@ -121,26 +123,54 @@
                         </div>
                     </div>
                 </div>
+                <!-- SCOR Level 2 配置层指标 (四大维度) -->
+                <div class="scor-l2-bar">
+                    <div class="scor-l2-group">
+                        <div class="scor-l2-title"><i class="fas fa-bullseye"></i> 交付域</div>
+                        <div class="scor-l2-item"><span class="scor-val good">94.6%</span><span class="scor-name">OTD准时率</span></div>
+                        <div class="scor-l2-item"><span class="scor-val good">98.5%</span><span class="scor-name">订单完整率</span></div>
+                    </div>
+                    <div class="scor-l2-group">
+                        <div class="scor-l2-title"><i class="fas fa-calendar-alt"></i> 计划域</div>
+                        <div class="scor-l2-item"><span class="scor-val good">87.3%</span><span class="scor-name">需求预测准确率</span></div>
+                        <div class="scor-l2-item"><span class="scor-val warn">82.1%</span><span class="scor-name">计划达成率</span></div>
+                    </div>
+                    <div class="scor-l2-group">
+                        <div class="scor-l2-title"><i class="fas fa-industry"></i> 制造域</div>
+                        <div class="scor-l2-item"><span class="scor-val good">97.8%</span><span class="scor-name">FPY一次合格率</span></div>
+                        <div class="scor-l2-item"><span class="scor-val warn">83.5%</span><span class="scor-name">OEE综合效率</span></div>
+                    </div>
+                    <div class="scor-l2-group">
+                        <div class="scor-l2-title"><i class="fas fa-handshake"></i> 采购域</div>
+                        <div class="scor-l2-item"><span class="scor-val good">96.2%</span><span class="scor-name">供应商准时交付率</span></div>
+                        <div class="scor-l2-item"><span class="scor-val warn">89.0%</span><span class="scor-name">物料齐套率</span></div>
+                    </div>
+                    <div class="scor-l2-group">
+                        <div class="scor-l2-title"><i class="fas fa-coins"></i> 财务域</div>
+                        <div class="scor-l2-item"><span class="scor-val good">8.6次</span><span class="scor-name">库存周转率(ITO)</span></div>
+                        <div class="scor-l2-item"><span class="scor-val good">42天</span><span class="scor-name">现金周转周期(C2C)</span></div>
+                    </div>
+                </div>
 
                 <!-- 图表区域 -->
                 <div class="chart-row">
                     <div class="chart-card chart-lg">
                         <div class="card-header">
-                            <h3><i class="fas fa-chart-area"></i> 库存趋势 & 物流状态</h3>
+                            <h3><i class="fas fa-chart-area"></i> 库存趋势 & 准时交付率</h3>
                             <div class="card-actions">
                                 <select class="mini-select"><option>近30天</option><option>近7天</option><option>近90天</option></select>
                             </div>
                         </div>
                         <div class="card-body">
-                            <canvas id="inventoryTrendChart"></canvas>
+                            <div class="chart-wrap"><canvas id="inventoryTrendChart"></canvas></div>
                         </div>
                     </div>
                     <div class="chart-card">
                         <div class="card-header">
-                            <h3><i class="fas fa-pie-chart"></i> 订单状态分布</h3>
+                            <h3><i class="fas fa-chart-pie"></i> 订单状态分布</h3>
                         </div>
                         <div class="card-body">
-                            <canvas id="orderStatusChart"></canvas>
+                            <div class="chart-wrap"><canvas id="orderStatusChart"></canvas></div>
                             <div class="pie-legend" id="orderStatusLegend"></div>
                         </div>
                     </div>
@@ -161,10 +191,10 @@
                     </div>
                     <div class="chart-card">
                         <div class="card-header">
-                            <h3><i class="fas fa-fire-flame-curved"></i> 热点供应商</h3>
+                            <h3><i class="fas fa-fire-flame-curved"></i> 核心供应商</h3>
                         </div>
                         <div class="card-body">
-                            <canvas id="supplierChart"></canvas>
+                            <div class="chart-wrap"><canvas id="supplierChart"></canvas></div>
                         </div>
                     </div>
                 </div>
@@ -355,27 +385,39 @@
                 <div class="warning-grid">
                     <div class="warning-card warn-critical">
                         <div class="warn-header"><span class="warn-level">严重</span><span class="warn-time">10分钟前</span></div>
-                        <h4>原材料缺货预警</h4>
-                        <p>芯片 IC-2024-X 库存低于安全水位，当前库存 120pcs，预计缺口 5000pcs，预计影响交付日期：2025-06-01</p>
-                        <div class="warn-actions"><button class="btn-sm btn-danger">立即处理</button><button class="btn-sm btn-outline">忽略</button></div>
+                        <h4>主控芯片缺货预警</h4>
+                        <p>BES2300蓝牙芯片 库存低于安全水位，当前库存 800pcs，缺口 8000pcs，影响Meta Quest 4 VR项目交付，预计影响交付日期：2025-06-01</p>
+                        <div class="warn-actions"><button class="btn-sm btn-danger" onclick="showToast('已发起紧急采购申请至恒玄科技','success')">紧急补货</button><button class="btn-sm btn-outline" onclick="showToast('已通知采购经理陈伟','info')">通知采购</button></div>
                     </div>
                     <div class="warning-card warn-warning">
                         <div class="warn-header"><span class="warn-level">警告</span><span class="warn-time">25分钟前</span></div>
                         <h4>物流延误告警</h4>
-                        <p>订单 SO-20250514-003 运输延误，原定今日到达，预计延迟2天，承运商：顺丰速运</p>
-                        <div class="warn-actions"><button class="btn-sm btn-warning">查看详情</button><button class="btn-sm btn-outline">联系承运商</button></div>
+                        <p>订单 SO-GT20250514-003 发往Sony东京 空运延误1天，DHL航班CI020临时调整，预计延迟至05-16到达</p>
+                        <div class="warn-actions"><button class="btn-sm btn-warning" onclick="showToast('已查看物流详情','info')">查看详情</button><button class="btn-sm btn-outline" onclick="showToast('已联系DHL客服','info')">联系DHL</button></div>
                     </div>
                     <div class="warning-card warn-warning">
                         <div class="warn-header"><span class="warn-level">警告</span><span class="warn-time">1小时前</span></div>
                         <h4>需求异常波动</h4>
-                        <p>客户 A公司 本周订单量环比增长 180%，超出历史均值 3 个标准差，建议核实需求真实性</p>
-                        <div class="warn-actions"><button class="btn-sm btn-warning">分析原因</button><button class="btn-sm btn-outline">通知销售</button></div>
+                        <p>客户 Sony 本周WH-1000XM6订单量环比增长 150%，超出历史均值3个标准差，建议核实需求真实性并调整产能排程</p>
+                        <div class="warn-actions"><button class="btn-sm btn-warning" onclick="showToast('正在分析Sony订单波动原因','info')">分析原因</button><button class="btn-sm btn-outline" onclick="showToast('已通知OC订单协调员','info')">通知OC</button></div>
                     </div>
                     <div class="warning-card warn-info">
                         <div class="warn-header"><span class="warn-level">提示</span><span class="warn-time">2小时前</span></div>
                         <h4>合同到期提醒</h4>
-                        <p>供应商 "华强电子" 框架协议将于 2025-05-20 到期，建议提前续约或启动备选供应商开发</p>
-                        <div class="warn-actions"><button class="btn-sm btn-primary">发起续约</button><button class="btn-sm btn-outline">稍后处理</button></div>
+                        <p>供应商 "瑞声科技" 声学组件框架协议将于 2025-05-20 到期，建议提前续约或启动备选供应商（歌尔微电子）开发</p>
+                        <div class="warn-actions"><button class="btn-sm btn-primary" onclick="showToast('已发起瑞声科技续约流程','success')">发起续约</button><button class="btn-sm btn-outline" onclick="showToast('已加入待办事项','info')">稍后处理</button></div>
+                    </div>
+                    <div class="warning-card warn-critical">
+                        <div class="warn-header"><span class="warn-level">严重</span><span class="warn-time">50分钟前</span></div>
+                        <h4>MEMS来料质量异常</h4>
+                        <p>IQC检验批次 B20250513-IQC02 楼氏电子MEMS麦克风不合格率3.2%，超出目标值2%，已发起退换货流程</p>
+                        <div class="warn-actions"><button class="btn-sm btn-danger" onclick="showToast('已发起楼氏电子退货流程','success')">退换货</button><button class="btn-sm btn-outline" onclick="showToast('已通知质量工程师','info')">通知质量</button></div>
+                    </div>
+                    <div class="warning-card warn-warning">
+                        <div class="warn-header"><span class="warn-level">警告</span><span class="warn-time">1.5小时前</span></div>
+                        <h4>SMT产能稼动率不足</h4>
+                        <p>SMT-A3线体稼动率78.3%，低于目标值80%，影响AirPods Pro 3交付节奏，已安排周末维保</p>
+                        <div class="warn-actions"><button class="btn-sm btn-warning" onclick="showToast('已查看SMT-A3线体详情','info')">查看详情</button><button class="btn-sm btn-outline" onclick="showToast('已通知生产主管','info')">通知生产</button></div>
                     </div>
                 </div>
             </section>
@@ -387,27 +429,49 @@
                         <input type="date" value="2025-04-01"> <span>至</span> <input type="date" value="2025-05-15">
                     </div>
                     <div class="dimension-selects">
-                        <select><option>按产品线</option><option>按客户</option><option>按地区</option><option>按供应商</option></select>
+                        <select id="analyticsDimSelect"><option>按产品线</option><option>按客户</option><option>按BG(事业群)</option><option>按供应商</option></select>
                         <select><option>月度</option><option>周度</option><option>季度</option></select>
                     </div>
-                    <button class="btn btn-primary"><i class="fas fa-chart-bar"></i> 生成报告</button>
+                    <button class="btn btn-primary" onclick="showToast('报告生成中，预计30秒...','info')"><i class="fas fa-chart-bar"></i> 生成报告</button>
+                    <button class="btn btn-outline" onclick="showToast('报告已导出为PDF','success')"><i class="fas fa-file-pdf"></i> 导出PDF</button>
                 </div>
                 <div class="analytics-grid">
                     <div class="analytics-card wide">
-                        <div class="card-header"><h3>历史趋势与预测</h3></div>
-                        <div class="card-body"><canvas id="trendForecastChart"></canvas></div>
+                        <div class="card-header"><h3><i class="fas fa-chart-area"></i> 历史趋势与预测</h3><span style="font-size:11px;color:#999;">数据来源: SAP ERP + 需求预测平台</span></div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="trendForecastChart"></canvas></div></div>
                     </div>
                     <div class="analytics-card">
-                        <div class="card-header"><h3>各环节效率分析</h3></div>
-                        <div class="card-body"><canvas id="efficiencyRadarChart"></canvas></div>
+                        <div class="card-header"><h3><i class="fas fa-radar"></i> 各环节效率分析 (SCOR L2)</h3></div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="efficiencyRadarChart"></canvas></div></div>
                     </div>
                     <div class="analytics-card">
-                        <div class="card-header"><h3>成本结构分析</h3></div>
-                        <div class="card-body"><canvas id="costStructureChart"></canvas></div>
+                        <div class="card-header"><h3><i class="fas fa-chart-pie"></i> 成本结构分析</h3></div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="costStructureChart"></canvas></div></div>
                     </div>
                     <div class="analytics-card">
-                        <div class="card-header"><h3>Top 10 滞留物料</h3></div>
-                        <div class="card-body"><canvas id="stagnantMaterialChart"></canvas></div>
+                        <div class="card-header"><h3><i class="fas fa-ranking-star"></i> Top 10 滞留物料</h3></div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="stagnantMaterialChart"></canvas></div></div>
+                    </div>
+                    <div class="analytics-card">
+                        <div class="card-header"><h3><i class="fas fa-building"></i> BG事业群交付绩效</h3></div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="bgPerformanceChart"></canvas></div></div>
+                    </div>
+                </div>
+                <!-- 客户交付绩效对比表 -->
+                <div class="chart-row" style="grid-template-columns: 1fr;margin-top:18px;">
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-users"></i> 客户交付绩效对比</h3>
+                            <span style="font-size:11px;color:#999;">基于SCOR OTD指标</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th>客户</th><th>产品</th><th>OTD准时率</th><th>完美订单率</th><th>OFCT(天)</th><th>退货率</th><th>评级</th></tr>
+                                </thead>
+                                <tbody id="customerPerfBody"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -486,14 +550,14 @@
                                 <select class="mini-select"><option>近30天</option><option>近7天</option><option>近90天</option></select>
                             </div>
                         </div>
-                        <div class="card-body"><canvas id="inventoryHistoryChart"></canvas></div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="inventoryHistoryChart"></canvas></div></div>
                     </div>
                     <div class="chart-card">
                         <div class="card-header">
                             <h3><i class="fas fa-chart-pie"></i> ABC分类占比</h3>
                         </div>
                         <div class="card-body">
-                            <canvas id="abcPieChart"></canvas>
+                            <div class="chart-wrap"><canvas id="abcPieChart"></canvas></div>
                             <div class="pie-legend" id="abcPieLegend"></div>
                         </div>
                     </div>
@@ -504,13 +568,13 @@
                         <div class="card-header">
                             <h3><i class="fas fa-layer-group"></i> 各类别库存分布</h3>
                         </div>
-                        <div class="card-body"><canvas id="categoryStockChart"></canvas></div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="categoryStockChart"></canvas></div></div>
                     </div>
                     <div class="chart-card">
                         <div class="card-header">
                             <h3><i class="fas fa-box-open"></i> 库存周转vs呆滞分析</h3>
                         </div>
-                        <div class="card-body"><canvas id="turnoverChart"></canvas></div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="turnoverChart"></canvas></div></div>
                     </div>
                 </div>
 
@@ -537,6 +601,236 @@
                 </div>
             </section>
 
+            <!-- ========== 页面: 物流中心 ========== -->
+            <section class="page" id="page-logistics">
+                <!-- 物流KPI -->
+                <div class="kpi-grid">
+                    <div class="kpi-card kpi-primary">
+                        <div class="kpi-icon"><i class="fas fa-truck-moving"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" data-target="86">0</div>
+                            <div class="kpi-label">在途订单数</div>
+                            <div class="kpi-trend up"><i class="fas fa-arrow-up"></i>+12</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-success">
+                        <div class="kpi-icon"><i class="fas fa-boxes-packing"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" data-target="234">0</div>
+                            <div class="kpi-label">本周发货量 (票)</div>
+                            <div class="kpi-trend up"><i class="fas fa-arrow-up"></i>+8.3%</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-warning">
+                        <div class="kpi-icon"><i class="fas fa-clock"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" data-target="3.2">0</div>
+                            <div class="kpi-label">平均运输时效 (天)</div>
+                            <div class="kpi-trend down"><i class="fas fa-arrow-down"></i>-0.4天</div>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-danger">
+                        <div class="kpi-icon"><i class="fas fa-percentage"></i></div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" data-target="94.6">0</div>
+                            <div class="kpi-label">准时交付率 (%)</div>
+                            <div class="kpi-trend down"><i class="fas fa-arrow-down"></i>-1.2%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 筛选 -->
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>目的地:</label>
+                        <select><option value="">全部</option><option>国内</option><option>东南亚</option><option>北美</option><option>欧洲</option></select>
+                    </div>
+                    <div class="filter-group">
+                        <label>承运商:</label>
+                        <select><option value="">全部</option><option>顺丰速运</option><option>DHL</option><option>FedEx</option><option>中远海运</option></select>
+                    </div>
+                    <div class="filter-group">
+                        <label>运输方式:</label>
+                        <select><option value="">全部</option><option>空运</option><option>海运</option><option>陆运</option><option>铁运(中欧班列)</option></select>
+                    </div>
+                    <div class="filter-group">
+                        <label>状态:</label>
+                        <select><option value="">全部</option><option>在途</option><option>已签收</option><option>异常</option><option>待发货</option></select>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-primary"><i class="fas fa-search"></i> 查询</button>
+                        <button class="btn btn-outline"><i class="fas fa-rotate-right"></i> 重置</button>
+                    </div>
+                </div>
+
+                <!-- 图表行 -->
+                <div class="chart-row">
+                    <div class="chart-card chart-lg">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-area"></i> 发运量趋势（近30天）</h3>
+                            <select class="mini-select"><option>近30天</option><option>近7天</option><option>近90天</option></select>
+                        </div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="shipmentTrendChart"></canvas></div></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-pie"></i> 运输方式占比</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-wrap"><canvas id="transportModeChart"></canvas></div>
+                            <div class="pie-legend" id="transportModeLegend"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-row">
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-ranking-star"></i> 承运商绩效分析</h3>
+                        </div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="carrierPerfChart"></canvas></div></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-earth-asia"></i> 目的地分布</h3>
+                        </div>
+                        <div class="card-body"><div class="chart-wrap"><canvas id="destinationChart"></canvas></div></div>
+                    </div>
+                </div>
+
+                <!-- 在途订单表 -->
+                <div class="chart-row" style="grid-template-columns: 1fr;">
+                    <div class="chart-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-satellite-dish"></i> 在途订单实时追踪</h3>
+                            <span class="badge" style="background:var(--info);padding:2px 10px;border-radius:10px;font-size:11px;">86 票在途</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>运单号</th><th>客户</th><th>产品</th><th>目的地</th>
+                                        <th>承运商</th><th>方式</th><th>发货日</th><th>预计到达</th><th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logisticsTrackBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========== 页面: 系统设置 ========== -->
+            <section class="page" id="page-settings">
+                <div class="settings-layout">
+                    <!-- 左侧菜单 -->
+                    <div class="settings-sidebar">
+                        <div class="settings-nav-item active" data-setting="basic">
+                            <i class="fas fa-sliders"></i><span>基础配置</span>
+                        </div>
+                        <div class="settings-nav-item" data-setting="users">
+                            <i class="fas fa-users"></i><span>用户管理</span>
+                        </div>
+                        <div class="settings-nav-item" data-setting="integration">
+                            <i class="fas fa-plug"></i><span>数据源集成</span>
+                        </div>
+                        <div class="settings-nav-item" data-setting="notification">
+                            <i class="fas fa-bell"></i><span>预警规则</span>
+                        </div>
+                        <div class="settings-nav-item" data-setting="logs">
+                            <i class="fas fa-scroll"></i><span>系统日志</span>
+                        </div>
+                    </div>
+                    <!-- 右侧内容 -->
+                    <div class="settings-content">
+                        <!-- 基础配置 -->
+                        <div class="settings-panel active" id="setting-basic">
+                            <h3 class="settings-title">基础配置</h3>
+                            <div class="settings-grid">
+                                <div class="form-group">
+                                    <label>系统名称</label>
+                                    <input type="text" value="歌尔供应链控制塔">
+                                </div>
+                                <div class="form-group">
+                                    <label>企业编码</label>
+                                    <input type="text" value="GOERTEK-SCCT-001">
+                                </div>
+                                <div class="form-group">
+                                    <label>数据刷新频率</label>
+                                    <select><option>实时 (5秒)</option><option>1分钟</option><option>5分钟</option><option>15分钟</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>时区设置</label>
+                                    <select><option>UTC+8 (北京时间)</option><option>UTC+9 (东京)</option><option>UTC-5 (美东)</option><option>UTC+0 (伦敦)</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>默认语言</label>
+                                    <select><option>简体中文</option><option>English</option><option>日本語</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label>数据保留周期</label>
+                                    <select><option>1年</option><option>2年</option><option>3年</option><option>永久</option></select>
+                                </div>
+                            </div>
+                            <div class="settings-actions">
+                                <button class="btn btn-primary" onclick="showToast('配置已保存','success')"><i class="fas fa-save"></i> 保存配置</button>
+                                <button class="btn btn-outline" onclick="showToast('配置已重置为默认值','info')"><i class="fas fa-undo"></i> 恢复默认</button>
+                            </div>
+                        </div>
+
+                        <!-- 用户管理 -->
+                        <div class="settings-panel" id="setting-users">
+                            <h3 class="settings-title">用户管理</h3>
+                            <div class="settings-actions" style="margin-bottom:16px;">
+                                <button class="btn btn-primary" onclick="showToast('新增用户功能已触发','success')"><i class="fas fa-plus"></i> 新增用户</button>
+                            </div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th>用户名</th><th>姓名</th><th>角色</th><th>部门</th><th>状态</th><th>最后登录</th><th>操作</th></tr>
+                                </thead>
+                                <tbody id="userMgmtBody"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- 数据源集成 -->
+                        <div class="settings-panel" id="setting-integration">
+                            <h3 class="settings-title">数据源集成</h3>
+                            <div class="integration-grid" id="integrationGrid"></div>
+                        </div>
+
+                        <!-- 预警规则 -->
+                        <div class="settings-panel" id="setting-notification">
+                            <h3 class="settings-title">预警规则配置</h3>
+                            <div id="warningRuleList"></div>
+                            <div class="settings-actions">
+                                <button class="btn btn-primary" onclick="showToast('预警规则已保存','success')"><i class="fas fa-save"></i> 保存规则</button>
+                            </div>
+                        </div>
+
+                        <!-- 系统日志 -->
+                        <div class="settings-panel" id="setting-logs">
+                            <h3 class="settings-title">系统日志</h3>
+                            <div class="filter-bar" style="margin-bottom:12px;">
+                                <div class="filter-group">
+                                    <label>级别:</label>
+                                    <select><option>全部</option><option>INFO</option><option>WARN</option><option>ERROR</option></select>
+                                </div>
+                                <div class="filter-group">
+                                    <label>模块:</label>
+                                    <select><option>全部</option><option>订单</option><option>库存</option><option>物流</option><option>系统</option></select>
+                                </div>
+                            </div>
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th>时间</th><th>级别</th><th>模块</th><th>操作人</th><th>内容</th></tr>
+                                </thead>
+                                <tbody id="systemLogBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- ========== 页面: AI助手 ========== -->
             <section class="page" id="page-ai-assistant">
                 <div class="ai-chat-container">
@@ -544,25 +838,29 @@
                         <div class="chat-msg ai-msg">
                             <div class="msg-avatar"><i class="fas fa-robot"></i></div>
                             <div class="msg-body">
-                                <p>您好！我是供应链控制塔 AI 助手。我可以帮您：</p>
+                                <p>您好！我是歌尔供应链控制塔 AI 助手。我可以帮您：</p>
                                 <ul>
                                     <li>📊 分析供应链数据并生成洞察报告</li>
                                     <li>⚠️ 解读预警信息并提供处置建议</li>
-                                    <li>🔍 追踪订单和物料的实时状态</li>
+                                    <li>🔍 追踪订单和物料的端到端状态</li>
                                     <li>💡 优化库存策略和采购计划</li>
-                                    <li>📈 预测未来需求和潜在风险</li>
+                                    <li>📈 预测需求和潜在供应风险</li>
+                                    <li>🤖 协调 OC/PC/MC/Buyer 多角色协作</li>
                                 </ul>
                                 <p>请问有什么可以帮您的？</p>
                             </div>
                         </div>
                     </div>
                     <div class="chat-input-area">
-                        <div class="quick-actions">
-                            <button class="quick-btn" onclick="sendQuickMsg('当前有哪些未处理的严重预警？')">当前有哪些严重预警？</button>
-                            <button class="quick-btn" onclick="sendQuickMsg('帮我分析本月库存周转率')">分析本月库存周转率</button>
-                            <button class="quick-btn" onclick="sendQuickMsg('SO-20250514-003 的物流状态如何？')">查询订单物流状态</button>
-                            <button class="quick-btn" onclick="sendQuickMsg('生成本周供应链健康度报告')">生成周报摘要</button>
-                        </div>
+                    <div class="quick-actions">
+                        <button class="quick-btn" onclick="sendQuickMsg('当前有哪些未处理的严重预警？')">当前有哪些严重预警？</button>
+                        <button class="quick-btn" onclick="sendQuickMsg('帮我分析本月库存周转率')">分析库存周转率</button>
+                        <button class="quick-btn" onclick="sendQuickMsg('AirPods Pro 3 的订单状态如何？')">追踪AirPods订单</button>
+                        <button class="quick-btn" onclick="sendQuickMsg('生成本周供应链健康度报告')">生成周报摘要</button>
+                        <button class="quick-btn" onclick="sendQuickMsg('协调OC和PC确认Meta Quest 4交期')">OC/PC协同</button>
+                        <button class="quick-btn" onclick="sendQuickMsg('MC请确认BES2300芯片齐套情况')">MC齐套确认</button>
+                        <button class="quick-btn" onclick="sendQuickMsg('Buyer请跟进楼氏电子MEMS退货进度')">Buyer跟进</button>
+                    </div>
                         <div class="chat-input-wrapper">
                             <textarea id="chatInput" placeholder="输入您的问题，按 Enter 发送..."></textarea>
                             <button class="btn btn-primary send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
